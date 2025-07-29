@@ -1,4 +1,5 @@
 from repo import Repository
 
 r = Repository()
-r.AnalysisOrderCount(3, '3')
+r.AnalysisStoreInH3()
+#r.AnalysisOrderCount(1, '1')

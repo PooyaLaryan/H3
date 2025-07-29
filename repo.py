@@ -13,7 +13,19 @@ class Repository:
         self.cluster = Clustering()
         pass
 
-    def AnalysisStoreInH3(self):
+    def AnalysisStoreInH3(self, resolution = 7):
+        df, polygon_df = self.prepare_data()
+        self.cluster.CalculateH3(df, polygon_df, resolution)
+
+    def AnalysisStoreInKMeans(self, n_clusters = 5, random_state = 100):
+        df, polygon_df = self.prepare_data()
+        self.cluster.CalculateKMeans(df, polygon_df, n_clusters, random_state)
+    
+    def AnalysisStoreInDBSCAN(self, n = .6):
+        df, polygon_df = self.prepare_data()
+        self.cluster.CalculateDBSCAN(df, polygon_df, n)
+    
+    def prepare_data(self):
         df = self.t.execute_query('''
                         SELECT
                         ps.StoreId
@@ -35,10 +47,7 @@ class Repository:
                             WHERE ps.IsActive = 1 AND s.CityId = 464
                         );
                         ''')
-        
-        #cluster.CalculateDBSCAN(df, .6)
-        #cluster.CalculateKMeans(df, 5, 100)
-        self.cluster.CalculateH3(df, polygon_df, 8)
+        return df, polygon_df
     
     def insert_h3(self):
         for resolution in np.arange(5,12): 

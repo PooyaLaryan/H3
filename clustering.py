@@ -57,7 +57,7 @@ class Clustering:
             coords_rad = np.radians(coords)
             return coords_rad
     
-    def MapShow(self, df : pd.DataFrame, polygon_df : pd.DataFrame):
+    def MapShow(self, df : pd.DataFrame, polygon_df : pd.DataFrame, show_legend : bool = True):
         colors = list(mcolors.TABLEAU_COLORS.values()) + list(mcolors.CSS4_COLORS.values())
 
         m = folium.Map(location=[36.3, 59.6], zoom_start=12)
@@ -105,7 +105,35 @@ class Clustering:
                 )
             ).add_to(m)
 
+        if(show_legend == True):
+            self.show_legend(m, cluster_to_color)
+
         m.save("clusters_map.html")
+    
+    def show_legend(self, m, cluster_to_color):
+        legend_html = '''
+        <div style="
+            position: fixed;
+            bottom: 50px;
+            left: 50px;
+            width: 200px;
+            background-color: white;
+            border:2px solid grey;
+            z-index:9999;
+            font-size:14px;
+            padding: 10px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+        ">
+        <b>خوشه‌ها (Clusters)</b><br>
+        {}
+        </div>
+        '''.format("".join([
+            f'<i style="background:{color};width:12px;height:12px;display:inline-block;margin-right:6px;"></i>{cluster}<br>'
+            for cluster, color in cluster_to_color.items()
+        ]))
+
+        m.get_root().html.add_child(folium.Element(legend_html))
+
     
     def is_dark_color(self, hex_color, threshold=0.5):
         r, g, b = mcolors.to_rgb(hex_color)
