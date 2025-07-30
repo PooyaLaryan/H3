@@ -75,7 +75,8 @@ class Clustering:
                 color=color,
                 fill=True,
                 fill_color=color,
-                fill_opacity=0.7
+                fill_opacity=0.7,
+                tooltip=cluster
             ).add_to(m)
 
         dark_colors = [color for color in colors if self.is_dark_color(color)]

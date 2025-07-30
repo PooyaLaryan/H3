@@ -28,9 +28,10 @@ class Repository:
     def prepare_data(self):
         df = self.t.execute_query('''
                         SELECT
-                        ps.StoreId
-                        ,s.Location.STY AS Latitude
-                        ,s.Location.STX AS Longitude
+                            ps.StoreId
+                            ,s.Location.STY AS Latitude
+                            ,s.Location.STX AS Longitude
+                            ,PolygonId
                         FROM CS_Dispatcher.DP.PolygonStore ps
                         INNER JOIN CS_Dispatcher.DP.Store s ON ps.StoreId = s.Id
                         INNER JOIN CS_Public.Haf.City c ON s.CityId = c.Id
@@ -49,17 +50,36 @@ class Repository:
                         ''')
         return df, polygon_df
     
-    def insert_h3(self):
+    def insert_h3(self, df : pd.DataFrame) :
         for resolution in np.arange(5,12): 
-            for index, item in self.df.iterrows():
+            for index, item in df.iterrows():
                 latitude = item.Latitude
                 longitude = item.Longitude
                 store_id = item.StoreId
+                polygon_id = item.PolygonId
                 h3id = self.h3.Convert_to_H3_cell(latitude, longitude, resolution)
+
                 self.t.insert(f'''
-                        INSERT INTO DataEngineering_ML.dbo.H3(StoreId, Resolution, H3Id)
-                        VALUES({store_id},{resolution},'{h3id}')
+                        INSERT INTO DataEngineering_ML.dbo.H3(StoreId, Resolution, H3Id, PolygonId)
+                        VALUES({store_id},{resolution},'{h3id}',{polygon_id})
                         ''')
+    
+    def insert_h3_r7(self, df : pd.DataFrame):
+            try:
+                for index, item in df.iterrows():
+                    latitude = item.Latitude
+                    longitude = item.Longitude
+                    store_id = item.StoreId
+                    polygon_id = item.PolygonId
+                    h3id = self.h3.Convert_to_H3_cell(latitude, longitude, 7)
+                    
+                    self.t.insert(f'''
+                        INSERT INTO DataEngineering_ML.dbo.H3(StoreId, Resolution, H3Id, PolygonId)
+                        VALUES({store_id},7 ,'{h3id}',{polygon_id})
+                        ''')
+                    print(f"✅ store {store_id} inserted in H3 {h3id}.")
+            except Exception as e:
+                print("❌ خطا در درج رکورد:", e)
     
     def AnalysisOrderCount(self, rank, title):
         analysis_df = self.t.execute_query('''

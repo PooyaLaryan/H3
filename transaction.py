@@ -42,25 +42,17 @@ class SQLTransaction:
         
     
     def insert(self, insert_query, values):
-        try:
-            self.connection = pyodbc.connect(self.connection_string)
-            cursor = self.connection.cursor()
-            cursor.execute(insert_query, values)
-            self.connection.commit()
-            cursor.close()
-            self.connection.close()
-            print("✅ رکورد با موفقیت درج شد.")
-        except Exception as e:
-            print("❌ خطا در درج رکورد:", e)
+        self.connection = pyodbc.connect(self.connection_string)
+        cursor = self.connection.cursor()
+        cursor.execute(insert_query, values)
+        self.connection.commit()
+        cursor.close()
+        self.connection.close()
 
     def insert(self, insert_query):
-        try:
-            self.connection = pyodbc.connect(self.connection_string)
-            cursor = self.connection.cursor()
-            cursor.execute(insert_query)
-            self.connection.commit()
-            cursor.close()
-            self.connection.close()
-            print("✅ رکورد با موفقیت درج شد.")
-        except Exception as e:
-            print("❌ خطا در درج رکورد:", e)
+        self.connection = pyodbc.connect(self.connection_string)
+        cursor = self.connection.cursor()
+        cursor.execute(insert_query)
+        self.connection.commit()
+        cursor.close()
+        self.connection.close()
